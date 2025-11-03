@@ -1,45 +1,50 @@
-name: charlie-blog deploy workflow
+name: prod-build-deploy
 
-# 设置触发时机，当推送main分支或者tag到远程时触发
+# 触发：仅当 push 到 prod 分支
 on:
   push:
-    tags:
-      - "*"
     branches:
-      - main
-  workflow_dispatch:
-# 各个脚本节点命令
+      - prod
+  workflow_dispatch: # 手动触发按钮
+
 jobs:
-  deploy-and-sync:
-    # 执行环境为linux的ubuntu系统
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # 从main分支拉取代码
+      # 1. 检出 prod 分支源码
       - name: Checkout 🛎️
         uses: actions/checkout@v4
         with:
-          ref: "main"
-      # 安装pnpm
+          ref: prod
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. 安装 pnpm
       - name: Install pnpm
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
-      # 安装node环境
-      - uses: actions/setup-node@v3
+
+      # 3. 安装 Node.js（带缓存）
+      - uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "pnpm"
-      # 使用pnpm安装依赖
+          node-version: 18
+          cache: pnpm
+
+      # 4. 安装依赖
       - name: Install dependencies
-        run: pnpm install
-      # 打包vitepress项目
-      - name: Build Site
+        run: pnpm install --frozen-lockfile
+
+      # 5. 构建静态站点
+      - name: Build VitePress
         run: pnpm run docs:build
-      # 将打包后dist里的产物提交到prod分支
-      - name: Deploy for Github 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+
+      # 6. 把产物强制推回 prod 根目录
+      - name: Deploy to prod 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: prod
-          folder: docs/.vitepress/dist
-          single-commit: true
-          clean: true
+          branch: prod          # 目标分支
+          folder: docs/.vitepress/dist  # 产物目录
+          target-folder: .      # 根目录
+          single-commit: true   # 只保留一次提交
+          clean: true           # 清掉旧文件
