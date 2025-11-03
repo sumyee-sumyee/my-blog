@@ -1,50 +1,37 @@
 name: prod-build-deploy
 
-# 触发：仅当 push 到 prod 分支
 on:
   push:
-    branches:
-      - prod
-  workflow_dispatch: # 手动触发按钮
+    branches: [prod]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. 检出 prod 分支源码
-      - name: Checkout 🛎️
+      - name: Checkout prod
         uses: actions/checkout@v4
         with:
           ref: prod
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. 安装 pnpm
       - name: Install pnpm
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      # 3. 安装 Node.js（带缓存）
       - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: pnpm
 
-      # 4. 安装依赖
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run docs:build
 
-      # 5. 构建静态站点
-      - name: Build VitePress
-        run: pnpm run docs:build
-
-      # 6. 把产物强制推回 prod 根目录
-      - name: Deploy to prod 🚀
+      - name: Push dist → prod 根目录
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: prod          # 目标分支
-          folder: docs/.vitepress/dist  # 产物目录
-          target-folder: .      # 根目录
-          single-commit: true   # 只保留一次提交
-          clean: true           # 清掉旧文件
+          branch: prod
+          folder: docs/.vitepress/dist
+          target-folder: .
+          single-commit: true
+          clean: true
