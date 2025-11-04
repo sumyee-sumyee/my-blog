@@ -36,7 +36,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: release/prod
-          folder: /
+          folder: docs/.vitepress/dist
           target-folder: .
           # single-commit: true
           clean: true
