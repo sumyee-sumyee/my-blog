@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout prod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 
         with:
           ref: prod
 
@@ -38,5 +38,5 @@ jobs:
           branch: release/prod
           folder: /
           target-folder: .
-          single-commit: true
+          # single-commit: true
           clean: true
