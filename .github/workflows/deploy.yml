@@ -27,6 +27,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run docs:build
 
+      - name: 检查构建产物是否存在
+        run: |
+          echo "列出 docs/.vitepress/dist 目录内容："
+          ls -la docs/.vitepress/dist || echo "❌ dist 目录不存在！"
+
       - name: Push dist → release/prod 根目录
         uses: JamesIves/github-pages-deploy-action@v4
         with:
