@@ -27,11 +27,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run docs:build
 
-      - name: Push dist → prod 根目录
+      - name: Push dist → release/prod 根目录
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: prod
-          folder: docs/.vitepress/dist
+          branch: release/prod
+          folder: /
           target-folder: .
           single-commit: true
           clean: true
