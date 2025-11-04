@@ -40,3 +40,4 @@ jobs:
           target-folder: .
           # single-commit: true
           clean: true
+          token: ${{ secrets.DEPLOY_TOKEN }}
